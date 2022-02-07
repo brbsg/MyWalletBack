@@ -1,8 +1,9 @@
 import bcrypt from "bcrypt";
+import dayjs from "dayjs";
 import { ObjectId } from "mongodb";
 import db from "../db.js";
 
-export async function entries(req, res) {
+export async function statements(req, res) {
   const { authorization } = req.headers;
   const token = authorization?.replace("Bearer ", "");
 
@@ -18,14 +19,14 @@ export async function entries(req, res) {
     });
 
     if (dbUser) {
-      const entries = await db
-        .collection("entries")
+      const statements = await db
+        .collection("statements")
         .find({
           idUser: new ObjectId(req.params.id),
         })
         .toArray();
 
-      res.send(entries).status(201);
+      res.send(statements).status(201);
     } else {
       res.sendStatus(401);
     }
@@ -51,10 +52,11 @@ export async function newEntry(req, res) {
     });
 
     if (dbUser) {
-      await db.collection("entries").insertOne({
+      await db.collection("statements").insertOne({
         idUser: dbUser._id,
         value,
         description,
+        date: dayjs().locale("pt-br").format("DD/MM/YY"),
       });
 
       res.sendStatus(201);

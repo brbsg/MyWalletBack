@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import { ObjectId } from "mongodb";
 import { v4 as uuid } from "uuid";
 import db from "../db.js";
 
@@ -25,6 +26,17 @@ export async function signIn(req, res) {
 
   try {
     const dbUser = await db.collection("users").findOne({ email });
+    const dbSession = await db
+      .collection("sessions")
+      .findOne({ userId: dbUser._id });
+
+    if (dbSession) {
+      await db
+        .collection("sessions")
+        .deleteMany({ userId: dbUser._id })
+        .then((res) => console.log(res))
+        .catch((error) => console.log(error));
+    }
 
     if (dbUser && bcrypt.compareSync(password, dbUser.password)) {
       const token = uuid();
