@@ -3,6 +3,18 @@ import dayjs from "dayjs";
 import { ObjectId } from "mongodb";
 import db from "../db.js";
 
+export async function deleteStatement(req, res) {
+  const { id } = req.params;
+
+  try {
+    await db.collection("statements").deleteOne({ _id: new ObjectId(id) });
+
+    res.sendStatus(201);
+  } catch (error) {
+    res.sendStatus(401);
+  }
+}
+
 export async function statements(req, res) {
   const { authorization } = req.headers;
   const token = authorization?.replace("Bearer ", "");
